@@ -90,7 +90,7 @@ class Colors:
     @staticmethod
     def hex2rgb(h):
         """Converts hex color codes to RGB values (i.e. default PIL order)."""
-        return tuple(int(h[1 + i : 1 + i + 2], 16) for i in (0, 2, 4))
+        return tuple(int(h[1 + i: 1 + i + 2], 16) for i in (0, 2, 4))
 
 
 colors = Colors()  # create instance for 'from utils.plots import colors'
@@ -160,6 +160,14 @@ class Annotator:
         self.kpt_color = colors.pose_palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
 
     def box_label(self, box, label="", color=(128, 128, 128), txt_color=(255, 255, 255), rotated=False):
+        # if(label.startswith('person')): return
+        # box_label: tensor([5.8167e-02, 2.5446e+02, 3.2557e+01, 3.2487e+02]),stop sign 0.26,(255, 194, 0),(255, 255, 255),False
+        # box_label: tensor([  0.0000, 550.5250,  63.0069, 873.4429]),person 0.26,(56, 56, 255),(255, 255, 255),False
+        # box_label: tensor([221.5173, 405.7986, 344.9706, 857.5366]),person 0.83,(56, 56, 255),(255, 255, 255),False
+        # box_label: tensor([669.4729, 392.1859, 809.7200, 877.0355]),person 0.85,(56, 56, 255),(255, 255, 255),False
+        # box_label: tensor([ 48.5504, 398.5523, 245.3456, 902.7027]),person 0.87,(56, 56, 255),(255, 255, 255),False
+        # box_label: tensor([ 22.8712, 231.2773, 805.0026, 756.8405]),bus 0.87,(10, 249, 72),(255, 255, 255),False
+        print(f"box_label: {box},{label},{color},{txt_color},{rotated}")
         """Add one xyxy box to image with label."""
         if isinstance(box, torch.Tensor):
             box = box.tolist()
@@ -188,6 +196,18 @@ class Annotator:
             else:
                 p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
                 cv2.rectangle(self.im, p1, p2, color, thickness=self.lw, lineType=cv2.LINE_AA)
+                # # ---------------------------------------------------------------------------------------------------#
+                # 在预测图中绘制一个中心坐标红点
+                cv2.circle(self.im, ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), self.lw, (0, 0, 255), self.lw)
+                # 创建了个中心点坐标变量
+                Center = (((p2[0] - p1[0]) / 2 + p1[0]), ((p2[1] - p1[1]) / 2 + p1[1]))
+                cv2.putText(self.im, str(Center), ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), 0, self.lw / 3, txt_color,
+                            thickness=4, lineType=cv2.LINE_AA)
+                # 打印坐标信息
+                print("左上坐标为：(" + str(p1[0]) + "," + str(p1[1]) + ")，右上点的坐标为(" + str(p2[0]) + "," + str(p1[1]) + ")",
+                      "左下坐标为：(" + str(p1[0]) + "," + str(p2[1]) + ")，右下点的坐标为(" + str(p2[0]) + "," + str(p2[1]) + ")",
+                      "中心点坐标：(" + str((p2[0] - p1[0]) / 2 + p1[0]) + "," + str((p2[1] - p1[1]) / 2 + p1[1]) + ")")
+                # # ---------------------------------------------------------------------------------------------------#
             if label:
                 w, h = cv2.getTextSize(label, 0, fontScale=self.sf, thickness=self.tf)[0]  # text width, height
                 outside = p1[1] - h >= 3
@@ -762,7 +782,7 @@ def save_one_box(xyxy, im, file=Path("im.jpg"), gain=1.02, pad=10, square=False,
     b[:, 2:] = b[:, 2:] * gain + pad  # box wh * gain + pad
     xyxy = ops.xywh2xyxy(b).long()
     xyxy = ops.clip_boxes(xyxy, im.shape)
-    crop = im[int(xyxy[0, 1]) : int(xyxy[0, 3]), int(xyxy[0, 0]) : int(xyxy[0, 2]), :: (1 if BGR else -1)]
+    crop = im[int(xyxy[0, 1]): int(xyxy[0, 3]), int(xyxy[0, 0]): int(xyxy[0, 2]), :: (1 if BGR else -1)]
     if save:
         file.parent.mkdir(parents=True, exist_ok=True)  # make directory
         f = str(increment_path(file).with_suffix(".jpg"))
@@ -773,20 +793,20 @@ def save_one_box(xyxy, im, file=Path("im.jpg"), gain=1.02, pad=10, square=False,
 
 @threaded
 def plot_images(
-    images,
-    batch_idx,
-    cls,
-    bboxes=np.zeros(0, dtype=np.float32),
-    confs=None,
-    masks=np.zeros(0, dtype=np.uint8),
-    kpts=np.zeros((0, 51), dtype=np.float32),
-    paths=None,
-    fname="images.jpg",
-    names=None,
-    on_plot=None,
-    max_subplots=16,
-    save=True,
-    conf_thres=0.25,
+        images,
+        batch_idx,
+        cls,
+        bboxes=np.zeros(0, dtype=np.float32),
+        confs=None,
+        masks=np.zeros(0, dtype=np.uint8),
+        kpts=np.zeros((0, 51), dtype=np.float32),
+        paths=None,
+        fname="images.jpg",
+        names=None,
+        on_plot=None,
+        max_subplots=16,
+        save=True,
+        conf_thres=0.25,
 ):
     """Plot image grid with labels."""
     if isinstance(images, torch.Tensor):
@@ -805,7 +825,7 @@ def plot_images(
     max_size = 1920  # max image size
     bs, _, h, w = images.shape  # batch size, _, height, width
     bs = min(bs, max_subplots)  # limit plot images
-    ns = np.ceil(bs**0.5)  # number of subplots (square)
+    ns = np.ceil(bs ** 0.5)  # number of subplots (square)
     if np.max(images[0]) <= 1:
         images *= 255  # de-normalise (optional)
 
@@ -813,7 +833,7 @@ def plot_images(
     mosaic = np.full((int(ns * h), int(ns * w), 3), 255, dtype=np.uint8)  # init
     for i in range(bs):
         x, y = int(w * (i // ns)), int(h * (i % ns))  # block origin
-        mosaic[y : y + h, x : x + w, :] = images[i].transpose(1, 2, 0)
+        mosaic[y: y + h, x: x + w, :] = images[i].transpose(1, 2, 0)
 
     # Resize (optional)
     scale = max_size / ns / max(h, w)
@@ -900,8 +920,8 @@ def plot_images(
                         else:
                             mask = image_masks[j].astype(bool)
                         with contextlib.suppress(Exception):
-                            im[y : y + h, x : x + w, :][mask] = (
-                                im[y : y + h, x : x + w, :][mask] * 0.4 + np.array(color) * 0.6
+                            im[y: y + h, x: x + w, :][mask] = (
+                                    im[y: y + h, x: x + w, :][mask] * 0.4 + np.array(color) * 0.6
                             )
                 annotator.fromarray(im)
     if not save:

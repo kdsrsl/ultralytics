@@ -280,6 +280,14 @@ class Results(SimpleClass):
                 box = d.xyxyxyxy.reshape(-1, 4, 2).squeeze() if is_obb else d.xyxy.squeeze()
                 annotator.box_label(box, label, color=colors(c, True), rotated=is_obb)
 
+                # pred_boxes stop sign-stop sign 0.26-11-0.25506752729415894-None-tensor([5.8167e-02, 2.5446e+02, 3.2557e+01, 3.2487e+02])
+                # pred_boxes person-person 0.26-0-0.2611125707626343-None-tensor([  0.0000, 550.5250,  63.0069, 873.4429])
+                # pred_boxes person-person 0.83-0-0.8252242803573608-None-tensor([221.5173, 405.7986, 344.9706, 857.5366])
+                # pred_boxes person-person 0.85-0-0.8528355360031128-None-tensor([669.4729, 392.1859, 809.7200, 877.0355])
+                # pred_boxes person-person 0.87-0-0.865691065788269-None-tensor([ 48.5504, 398.5523, 245.3456, 902.7027])
+                # pred_boxes bus-bus 0.87-5-0.8734489679336548-None-tensor([ 22.8712, 231.2773, 805.0026, 756.8405])
+                print(f"pred_boxes {name},{label},{c},{conf},{id},{box}")
+
         # Plot Classify results
         if pred_probs is not None and show_probs:
             text = ",\n".join(f"{names[j] if names else j} {pred_probs.data[j]:.2f}" for j in pred_probs.top5)
