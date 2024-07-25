@@ -315,11 +315,11 @@ class Annotator:
                 cv2.rectangle(self.im, p1, p2, color, thickness=self.lw, lineType=cv2.LINE_AA)
                 # # ---------------------------------------------------------------------------------------------------#
                 # 在预测图中绘制一个中心坐标红点
-                cv2.circle(self.im, ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), self.lw, (0, 0, 255), self.lw)
+                cv2.circle(self.im, ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), self.lw, (255, 255, 255), self.lw*-1)
                 # 创建了个中心点坐标变量
-                Center = (((p2[0] - p1[0]) / 2 + p1[0]), ((p2[1] - p1[1]) / 2 + p1[1]))
-                cv2.putText(self.im, str(Center), ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), 0, self.lw / 3, txt_color,
-                            thickness=4, lineType=cv2.LINE_AA)
+                # Center = (((p2[0] - p1[0]) / 2 + p1[0]), ((p2[1] - p1[1]) / 2 + p1[1]))
+                # cv2.putText(self.im, str(Center), ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), 0, self.lw / 3, txt_color,
+                #             thickness=4, lineType=cv2.LINE_AA)
                 # 打印坐标信息
                 print("左上坐标为：(" + str(p1[0]) + "," + str(p1[1]) + ")，右上点的坐标为(" + str(p2[0]) + "," + str(p1[1]) + ")",
                       "左下坐标为：(" + str(p1[0]) + "," + str(p2[1]) + ")，右下点的坐标为(" + str(p2[0]) + "," + str(p2[1]) + ")",
